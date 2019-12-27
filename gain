@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
-import os,sys,subprocess,ffmpeg,shutil
+import os,sys,subprocess,ffmpeg,shutil, click
 
-if len(sys.argv) > 1:
+@click.command()
+@click.argument('input_file')
+# @click.pass_context
+def main(input_file):
+    """
+    This Script provides an interface to raise/lower the volume of audio files using FFMPEG
+    """
     file_name = sys.argv[1]
     cwd = os.getcwd()
     file_path,basename = os.path.split(file_name)
@@ -44,5 +50,6 @@ if len(sys.argv) > 1:
         )
 
 
-else:
-    print('file name not given')
+
+if __name__ == "__main__":
+    main()
