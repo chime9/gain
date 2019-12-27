@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+import os,sys,subprocess,ffmpeg,shutil
+
+if len(sys.argv) > 1:
+    file_name = sys.argv[1]
+    cwd = os.getcwd()
+    file_path,basename = os.path.split(file_name)
+    file_name,extension = os.path.splitext(basename) 
+    
+    if file_path == '':
+        file_path = cwd
+
+    while not os.path.isfile(file_path + "/" + file_name + extension):
+            print(file_name + extension + " is not a valid file")
+            file_path,basename = os.path.split( input('retype file ') )
+            file_name,extension = os.path.splitext(basename)
+    
+    db = ''
+    while True:
+        db = input('gain in db ')
+        try:
+            db = int(db)
+            break
+        except ValueError:
+            pass
+
+    volume = '"volume={}dB"'.format( db )
+
+    (ffmpeg
+        .input(file_path + "/" + file_name+extension)
+        .filter_('volume', db)
+        .output(file_path + "/" + file_name + "-gain" + extension)
+        .run()
+        )
+
+    run_command = ['mpv','--really-quiet','--no-video','--audio-device=alsa/plughw:CARD=AudioPCI,DEV=0',file_path + "/" + file_name + "-gain" + extension]
+    subprocess.call(run_command)
+
+    overwrite = input('overwrite original file? (y/n)')
+    if overwrite == "y":
+        shutil.move(
+            file_path + "/" + file_name + "-gain" + extension,
+            file_path + "/" + file_name + extension
+        )
+
+
+else:
+    print('file name not given')
